@@ -1,4 +1,3 @@
-#![feature(linked_list_remove)]
 mod add2nums;
 mod body_strings;
 mod buy_sell_stock;

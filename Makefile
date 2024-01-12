@@ -1,4 +1,4 @@
 run:
-	cargo +nightly r
+	cargo r
 test:
-	cargo +nightly t
+	cargo t

@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, LinkedList},
+    collections::{HashMap, VecDeque},
     hash::Hash,
     rc::Rc,
 };
@@ -8,7 +8,7 @@ use std::{
 struct LRUCache<K: Eq + Hash, V> {
     capacity: usize,
     elements: HashMap<Rc<K>, V>,
-    order: LinkedList<Rc<K>>,
+    order: VecDeque<Rc<K>>,
 }
 
 impl<K: Eq + Hash, V> LRUCache<K, V> {
@@ -16,7 +16,7 @@ impl<K: Eq + Hash, V> LRUCache<K, V> {
         Self {
             capacity,
             elements: HashMap::with_capacity(capacity),
-            order: LinkedList::new(),
+            order: VecDeque::with_capacity(capacity),
         }
     }
 
@@ -27,21 +27,17 @@ impl<K: Eq + Hash, V> LRUCache<K, V> {
     pub fn put(&mut self, key: K, value: V) {
         if self.elements.contains_key(&key) {
             let idx = self.order.iter().position(|k| k.as_ref() == &key).unwrap();
-            let elem = self.order.remove(idx);
-            self.order.push_front(elem)
+            let elem = self.order.remove(idx).unwrap();
+            self.order.push_front(elem);
         } else {
             if self.order.len() >= self.capacity {
                 let to_remove = self.order.pop_back().unwrap();
                 self.elements.remove(&to_remove).unwrap();
             }
-            self.update(key, value);
+            let k = Rc::new(key);
+            self.order.push_front(Rc::clone(&k));
+            self.elements.insert(Rc::clone(&k), value);
         }
-    }
-
-    fn update(&mut self, key: K, value: V) {
-        let k = Rc::new(key);
-        self.order.push_front(Rc::clone(&k));
-        self.elements.insert(Rc::clone(&k), value);
     }
 }
 
